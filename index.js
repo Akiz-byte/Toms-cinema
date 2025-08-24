@@ -25,14 +25,14 @@ searchInput.addEventListener("keydown", function(e){
 })
 
 searchBtn.addEventListener("click", function(){
-    fetch(`http://www.omdbapi.com/?apikey=511297ae&s=${searchInput.value}&page=1`)
+    fetch(`https://www.omdbapi.com/?apikey=511297ae&s=${searchInput.value}&page=1`)
     .then(res => res.json())
     .then( data =>{
         console.log(data)
         if(data.Response==="True"){
             let searchResultHtml = []
                 data.Search.forEach(data =>{
-                    fetch(`http://www.omdbapi.com/?apikey=511297ae&i=${data.imdbID}`)
+                    fetch(`https://www.omdbapi.com/?apikey=511297ae&i=${data.imdbID}`)
                     .then(res => res.json())
                     .then(data =>{
                         searchResult.unshift(data)
