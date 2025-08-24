@@ -5,6 +5,9 @@
 body{
     margin: 0;
     background-color: #121212;
+    min-height: 100vh;          
+    display: flex;
+    flex-direction: column;
 
 }
 
@@ -113,6 +116,7 @@ header h4:hover{
 }
 
 
+/* MOVIE SEARCH RESULTS CONTAINER */
 #search-result{
     width: 100%;
     height: 100%;
@@ -122,6 +126,8 @@ header h4:hover{
     gap: 3em;
     margin-top: 2em;
     justify-content: center;
+
+    flex: 1;
 }
 
 /* MOVIE NO STATE */
@@ -298,7 +304,7 @@ footer{
     gap: 1em;
     justify-content: center;
     text-align: center;
-    margin-top: 2em;
+    margin-top: auto;
     padding: 0.5em 0;
     background-color: #2c2c2c;
     color: #ffffff;
