@@ -80,7 +80,7 @@ header h4:hover{
 
 #search-input{
     width: 342px;
-    height: 38px;
+    height: 2.375em;
     border-bottom-left-radius: 6px;
     border-top-left-radius: 6px;
     outline: none;
@@ -101,7 +101,6 @@ header h4:hover{
 
 #search-button{
     width: 120px;
-    height: 38px;
     border: none;
     cursor: pointer;
     border-top-right-radius: 6px;
@@ -304,8 +303,154 @@ footer{
     gap: 1em;
     justify-content: center;
     text-align: center;
-    margin-top: auto;
+    margin-top: 2em;
     padding: 0.5em 0;
     background-color: #2c2c2c;
     color: #ffffff;
+}
+
+@media (max-width:480px){
+    *, *::after, *::before{
+        box-sizing: border-box;
+    }
+
+    body{
+        width: 100vh;
+    }
+
+    #search-input{
+        width: 50vh;
+        height: 2.25em;
+    }
+
+    .movie-list{
+        border: 2px solid red;
+        width: 80vh;
+        height: 125px;
+        color: #A5A5A5;
+        /* display: flex; */
+        /* align-items: center; */
+        /* margin-bottom: -1.6em;     */
+    }
+
+    #movie-poster{
+        width: 70px;
+        height: 125px;
+        border-radius: 50px;
+        margin: 1.5em;
+    }
+
+
+    #rule{
+        width:95%;
+        margin-left: 2em;
+        border: none;
+        background-color: #2c2c2c;
+        height: 2px;
+        grid-column: 1 ;
+    }
+
+    #movie-poster img{
+        width: 100%;
+        height: 100%;
+        min-width: 85px;
+    }
+
+    .movie-details{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border: 2px solid blue;
+        width: 340px;
+        min-width: 280px;
+        height: 100%;
+        font-family: 'Inter';
+    }
+
+    #movie-title{
+        font-family: "inter";
+        display: flex;
+        align-items: center;
+        gap: 0.52em;
+        color: #ffffff;
+        height: 15px;
+        font-size: 12px;
+    }
+
+    #movie-title h2{
+        margin: 0;
+        font-size: 14px;
+    }
+
+    #movie-description{
+        display: flex;
+        gap: 1.5em;
+        font-family: 'Inter';
+        font-weight: 400;
+        font-size: 10px;
+        color: #ffffff;
+        line-height: 20px;
+    }
+
+    #watchlist-button{
+        align-self: center;
+    }
+
+    #add-watchlist{
+        font-family: 'Inter';
+        border: none;
+        background: none;
+        color: #ffffff;
+        margin: 0;
+        cursor: pointer;
+        font-size: 10px;
+    }
+
+    span{
+        font-family: 'Inter';
+        font-weight: 400;
+        font-size: 12px;
+        color: #ffffff;
+        line-height: 20px;
+    }
+
+    #remove-watchlist{
+        font-family: 'Inter';
+        border: none;
+        background: none;
+        color: #ffffff;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    #add-movies{
+        cursor: pointer;
+        
+    }
+
+
+    #movie-content{
+        font-family: 'Inter';
+        font-weight: 400;
+        font-size: 10px;    
+    }
+
+    footer{
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        justify-content: center;
+        text-align: center;
+        margin-top: 3em;
+        padding: 0.5em 0;
+        background-color: #2c2c2c;
+        font-size: 12px;
+        color: #ffffff;
+    }
+    /* #search-result{
+        grid-template-columns: repeat(auto-fill, minmax(200px, 250px));
+        gap: 2em;
+        margin-top: 2em;
+        justify-content: center;
+    } */
 }

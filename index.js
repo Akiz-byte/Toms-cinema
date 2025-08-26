@@ -12,6 +12,9 @@ document.addEventListener("click", (e)=>{
             localStorage.setItem("watchlist", JSON.stringify(watchlist))
             document.querySelector(`#watchlist-button.${movie.imdbID}`).innerHTML = `<span id="added-watchlist"><i class="fa-solid fa-circle-check fa-xl"> </i>Added</span>`
             alert("Movie added to watchlist")
+            const vidsrcUrl = `https://vidsrc.xyz/embed/movie?imdb=${encodeURIComponent(movie.imdbID)}`
+            window.open(vidsrcUrl, '_blank', 'noopener')
+
         }else{
             alert("Movie is already in watchlist")
         }
@@ -25,7 +28,7 @@ searchInput.addEventListener("keydown", function(e){
 })
 
 searchBtn.addEventListener("click", function(){
-    fetch(`https://www.omdbapi.com/?apikey=511297ae&s=${searchInput.value}&page=1`)
+    fetch(`https://www.omdbapi.com/?apikey=511297ae&s=${searchInput.value}`)
     .then(res => res.json())
     .then( data =>{
         console.log(data)
@@ -37,6 +40,10 @@ searchBtn.addEventListener("click", function(){
                     .then(data =>{
                         searchResult.unshift(data)
                         searchResultHtml = searchResult.map(data=>{
+
+                            // fetch(`https://vidsrc.xyz/embed/movie?imdb=tt5433140`)
+                            // .then(res => res.json())
+                            // .then(data => console.log(data))
                             return `<div class="movie-list" id="movie-list">
                                 <div id="movie-poster">
                                     <img src=${data.Poster} alt="">
