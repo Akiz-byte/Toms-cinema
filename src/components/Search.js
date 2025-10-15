@@ -4,7 +4,7 @@ import MovieList from './MovieList';
 import { db } from '../firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
 
-const TMDB_API_KEY = '0289f710200880e871f592ad0ea20d41';
+const TMDB_API_KEY = process.env.REACT_APP_TMDB_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 function Search() {
