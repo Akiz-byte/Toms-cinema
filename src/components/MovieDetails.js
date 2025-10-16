@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { db } from '../firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
 
-const TMDB_API_KEY = '0289f710200880e871f592ad0ea20d41';
+const TMDB_API_KEY = process.env.REACT_APP_TMDB_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -16,12 +16,7 @@ function MovieDetails() {
   const [watchlist, setWatchlist] = useState([]);
   const [isInWatchlist, setIsInWatchlist] = useState(false);
 
-  useEffect(() => {
-    loadWatchlist();
-    fetchMovieDetails();
-  }, [movieId]);
-
-  const loadWatchlist = async () => {
+  const loadWatchlist = useCallback(async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'watchlist'));
       const watchlistData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -29,15 +24,14 @@ function MovieDetails() {
     } catch (error) {
       console.error('Error loading watchlist:', error);
     }
-  };
+  }, []);
 
-  const fetchMovieDetails = async () => {
+  const fetchMovieDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${TMDB_BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}&append_to_response=videos,credits`);
       setMovie(response.data);
 
-      // Check if movie is in watchlist
       const inWatchlist = watchlist.some(item => item.tmdbId === response.data.id);
       setIsInWatchlist(inWatchlist);
     } catch (error) {
@@ -45,7 +39,12 @@ function MovieDetails() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [movieId, watchlist]);
+
+  useEffect(() => {
+    loadWatchlist();
+    fetchMovieDetails();
+  }, [loadWatchlist, fetchMovieDetails]);
 
   const addToWatchlist = async () => {
     if (!movie) return;

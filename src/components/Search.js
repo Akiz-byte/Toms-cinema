@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import MovieList from './MovieList';
 import { db } from '../firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 const TMDB_API_KEY = process.env.REACT_APP_TMDB_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
