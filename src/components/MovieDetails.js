@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { db } from '../firebase';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 const TMDB_API_KEY = process.env.REACT_APP_TMDB_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
@@ -31,23 +31,30 @@ function MovieDetails() {
       setLoading(true);
       const response = await axios.get(`${TMDB_BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}&append_to_response=videos,credits`);
       setMovie(response.data);
-
-      const inWatchlist = watchlist.some(item => item.tmdbId === response.data.id);
-      setIsInWatchlist(inWatchlist);
     } catch (error) {
       console.error('Error fetching movie details:', error);
     } finally {
       setLoading(false);
     }
-  }, [movieId, watchlist]);
+  }, [movieId]);
 
   useEffect(() => {
     loadWatchlist();
+  }, [loadWatchlist]);
+
+  useEffect(() => {
     fetchMovieDetails();
-  }, [loadWatchlist, fetchMovieDetails]);
+  }, [fetchMovieDetails]);
+
+  useEffect(() => {
+    if (movie) {
+      const inWatchlist = watchlist.some(item => item.tmdbId === movie.id);
+      setIsInWatchlist(inWatchlist);
+    }
+  }, [movie, watchlist]);
 
   const addToWatchlist = async () => {
-    if (!movie) return;
+    if (!movie || isInWatchlist) return;
 
     try {
       const movieData = {
@@ -58,20 +65,36 @@ function MovieDetails() {
         vote_average: movie.vote_average,
         overview: movie.overview,
         genres: movie.genres,
-        runtime: movie.runtime
+        runtime: movie.runtime,
+        createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, 'watchlist'), movieData);
+      const docRef = await addDoc(collection(db, 'watchlist'), movieData);
       setIsInWatchlist(true);
-      setWatchlist([...watchlist, movieData]);
+      setWatchlist([
+        ...watchlist,
+        { id: docRef.id, ...movieData, createdAt: new Date() },
+      ]);
     } catch (error) {
       console.error('Error adding to watchlist:', error);
     }
   };
 
+  const removeFromWatchlist = async () => {
+    const item = watchlist.find((w) => w.tmdbId === movie?.id);
+    if (!item) return;
+    try {
+      await deleteDoc(doc(db, 'watchlist', item.id));
+      setWatchlist(watchlist.filter((w) => w.id !== item.id));
+      setIsInWatchlist(false);
+    } catch (error) {
+      console.error('Error removing from watchlist:', error);
+    }
+  };
+
   const watchMovie = () => {
     if (movie && movie.imdb_id) {
-      const url = `https://vidsrc.xyz/embed/movie?imdb=${movie.imdb_id}`;
+      const url = `https://vidsrc.to/embed/movie/${movie.imdb_id}`;
       window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
@@ -85,6 +108,13 @@ function MovieDetails() {
         const url = `https://www.youtube.com/watch?v=${trailer.key}`;
         window.open(url, '_blank', 'noopener,noreferrer');
       }
+    }
+  };
+
+  const watchOnIMDb = () => {
+    if (movie && movie.imdb_id) {
+      const url = `https://www.imdb.com/title/${movie.imdb_id}/`;
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -119,6 +149,17 @@ function MovieDetails() {
   const director = movie.credits?.crew?.find(person => person.job === 'Director');
   const cast = movie.credits?.cast?.slice(0, 5) || [];
 
+  const formatRuntime = (mins) => {
+    if (mins === null || mins === undefined) return '—';
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h && m) return `${h}h ${m}m`;
+    if (h) return `${h}h`;
+    return `${m}m`;
+  };
+
+  // removed addedMeta display per request
+
   return (
     <div className="movie-details-page">
       {backdropUrl && (
@@ -136,18 +177,21 @@ function MovieDetails() {
         <div className="movie-info-section">
           <div className="movie-header">
             <h1>{movie.title}</h1>
-            <div className="movie-meta">
-              <span className="release-year">{movie.release_date?.split('-')[0]}</span>
-              <span className="rating">⭐ {movie.vote_average?.toFixed(1)}</span>
-              <span className="runtime">{movie.runtime} min</span>
+            <div className="movie-meta-details">
+              <span className="release-year"><i className="fa-solid fa-calendar-alt"></i> {movie.release_date?.split('-')[0]}</span>
+              <span className="rating"><i className="fa-solid fa-star"></i> {movie.vote_average?.toFixed(1)}</span>
+              <span className="runtime"><i className="fa-solid fa-clock"></i> {formatRuntime(movie.runtime)}</span>
             </div>
           </div>
 
-          <div className="movie-genres">
-            {movie.genres?.map(genre => (
-              <span key={genre.id} className="genre-tag">{genre.name}</span>
-            ))}
-          </div>
+          {movie.genres?.length > 0 && (
+            <div className="genre-block">
+              <i className="fa-solid fa-tags" aria-hidden="true"></i>
+              <span className="genre-list">
+                {movie.genres.map(g => g.name).join(' • ')}
+              </span>
+            </div>
+          )}
 
           <div className="movie-overview">
             <h3>Overview</h3>
@@ -194,14 +238,35 @@ function MovieDetails() {
             </button>
 
             <button
-              className={`action-btn watchlist-btn ${isInWatchlist ? 'in-watchlist' : ''}`}
-              onClick={addToWatchlist}
-              disabled={isInWatchlist}
+              className="action-btn imdb-btn"
+              onClick={watchOnIMDb}
+              disabled={!movie.imdb_id}
             >
-              <i className="fa-solid fa-plus"></i>
-              {isInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
+              <i className="fa-solid fa-external-link"></i>
+              Where to Watch
             </button>
+
+            {isInWatchlist ? (
+              <button
+                className="action-btn ghost-btn"
+                onClick={removeFromWatchlist}
+                type="button"
+              >
+                <i className="fa-solid fa-trash"></i>
+                Remove
+              </button>
+            ) : (
+              <button
+                className="action-btn watchlist-btn"
+                onClick={addToWatchlist}
+                type="button"
+              >
+                <i className="fa-solid fa-plus"></i>
+                Add to Watchlist
+              </button>
+            )}
           </div>
+
         </div>
       </div>
     </div>
