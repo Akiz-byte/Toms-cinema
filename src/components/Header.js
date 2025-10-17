@@ -55,7 +55,6 @@ function Header() {
         </div>
       </div>
 
-      {/* Breadcrumb for movie details page */}
       {location.pathname.startsWith('/movie/') && (
         <div className="breadcrumb">
           <Link to="/" className="breadcrumb-link">Home</Link>

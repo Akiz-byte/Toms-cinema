@@ -15,7 +15,7 @@ function Search() {
   const [loading, setLoading] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState('');
   const [genres, setGenres] = useState([]);
-  const [currentView, setCurrentView] = useState('trending'); // 'trending' or 'search'
+  const [currentView, setCurrentView] = useState('trending');
 
   useEffect(() => {
     loadWatchlist();
@@ -72,7 +72,6 @@ function Search() {
       let url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}`;
 
       if (selectedGenre) {
-        // Search with genre filter
         url += `&with_genres=${selectedGenre}`;
       }
 
@@ -89,8 +88,7 @@ function Search() {
   const addToWatchlist = async (movie) => {
     if (!movie) return;
 
-    // Check if already in watchlist
-    const isAlreadyInWatchlist = watchlist.some(item => item.tmdbId === movie.id);
+  const isAlreadyInWatchlist = watchlist.some(item => item.tmdbId === movie.id);
     if (isAlreadyInWatchlist) return;
 
     try {
@@ -106,7 +104,7 @@ function Search() {
 
       const docRef = await addDoc(collection(db, 'watchlist'), movieData);
       setWatchlist([...watchlist, { firestoreId: docRef.id, ...movieData }]);
-      return true; // Success
+  return true;
     } catch (error) {
       console.error('Error adding to watchlist:', error);
       return false;
@@ -119,7 +117,7 @@ function Search() {
       if (movieToRemove) {
         await deleteDoc(doc(db, 'watchlist', movieToRemove.firestoreId));
         setWatchlist(watchlist.filter(movie => movie.tmdbId !== movieId));
-        return true; // Success
+  return true;
       }
       return false;
     } catch (error) {
@@ -136,7 +134,6 @@ function Search() {
 
   const handleGenreChange = (e) => {
     setSelectedGenre(e.target.value);
-    // Auto-search when genre changes
     setTimeout(() => {
       if (searchQuery.trim()) {
         searchMovies();

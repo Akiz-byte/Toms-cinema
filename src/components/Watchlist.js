@@ -21,7 +21,6 @@ function Watchlist() {
       const watchlistData = querySnapshot.docs.map(doc => ({
         firestoreId: doc.id,
         ...doc.data(),
-        // Use tmdbId for navigation and operations
         id: doc.data().tmdbId
       }));
       setWatchlist(watchlistData);
@@ -52,7 +51,7 @@ function Watchlist() {
     } else if (sortBy === 'year') {
       return (b.release_date || '').localeCompare(a.release_date || '');
     }
-    return 0; // dateAdded - keep original order
+  return 0;
   });
 
   if (loading) {
@@ -88,7 +87,7 @@ function Watchlist() {
         ) : (
           <MovieList
             movies={sortedWatchlist}
-            onAddToWatchlist={null} // Not needed in watchlist view
+            onAddToWatchlist={null}
             showRemoveButton={true}
             onRemoveFromWatchlist={removeFromWatchlist}
           />
